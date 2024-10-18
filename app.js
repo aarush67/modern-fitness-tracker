@@ -23,6 +23,7 @@ document.getElementById('googleSignInBtn').addEventListener('click', function() 
         })
         .catch(function(error) {
             console.error("Error during Google Sign-In:", error);
+            alert(error.message);
         });
 });
 
@@ -38,6 +39,7 @@ document.getElementById('emailSignUpBtn').addEventListener('click', function() {
         })
         .catch(function(error) {
             console.error("Error during sign-up:", error);
+            alert(error.message);
         });
 });
 
@@ -53,6 +55,7 @@ document.getElementById('emailSignInBtn').addEventListener('click', function() {
         })
         .catch(function(error) {
             console.error("Error during sign-in:", error);
+            alert(error.message);
         });
 });
 
@@ -63,9 +66,11 @@ document.getElementById('signOutBtn').addEventListener('click', function() {
             console.log("User signed out");
             document.getElementById('signOutBtn').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('signInSection').style.display = 'block';
         })
         .catch(function(error) {
             console.error("Error during sign-out:", error);
+            alert(error.message);
         });
 });
 
@@ -87,16 +92,18 @@ document.getElementById('fitnessForm').addEventListener('submit', function(e) {
     if (user) {
         db.collection('fitnessData').add({
             uid: user.uid,
-            sleep: sleep,
-            caloriesBurned: caloriesBurned,
-            timestamp: new Date()
+            sleep: parseFloat(sleep),
+            caloriesBurned: parseFloat(caloriesBurned),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(function() {
             console.log("Data saved successfully.");
             displayChart(user.uid);
+            document.getElementById('fitnessForm').reset(); // Reset the form
         })
         .catch(function(error) {
             console.error("Error storing fitness data:", error);
+            alert(error.message);
         });
     }
 });
@@ -148,6 +155,7 @@ function displayChart(uid) {
     })
     .catch(function(error) {
         console.error("Error loading chart data:", error);
+        alert(error.message);
     });
 }
 
@@ -156,6 +164,7 @@ auth.onAuthStateChanged(function(user) {
     if (user) {
         console.log("User is signed in:", user);
         showDashboard();
+        displayChart(user.uid); // Display chart immediately after sign in
     } else {
         console.log("No user is signed in");
     }
