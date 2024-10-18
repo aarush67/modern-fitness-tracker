@@ -1,5 +1,5 @@
-// Firebase Configuration
-const firebaseConfig = {
+// Firebase configuration
+var firebaseConfig = {
     apiKey: "AIzaSyAax7lvojIX8wp5E65pak4NgCCp7zG_xKc",
     authDomain: "modern-fitness-tracker.firebaseapp.com",
     projectId: "modern-fitness-tracker",
@@ -10,137 +10,134 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// Handle Google Sign-In
+document.getElementById('googleSignInBtn').addEventListener('click', function() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(function(result) {
+            console.log("User signed in:", result.user);
+            showDashboard();
+        })
+        .catch(function(error) {
+            console.error("Error during Google Sign-In:", error);
+        });
+});
 
 // Handle Email Sign-Up
 document.getElementById('emailSignUpBtn').addEventListener('click', function() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    var email = prompt("Enter your email:");
+    var password = prompt("Enter your password:");
 
     auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(function(userCredential) {
             console.log("User signed up:", userCredential.user);
-            // Redirect to dashboard
-            window.location.href = 'dashboard.html';
+            showDashboard();
         })
-        .catch((error) => {
-            console.error("Error during sign-up:", error.message);
-            alert(error.message);
+        .catch(function(error) {
+            console.error("Error during sign-up:", error);
         });
 });
 
 // Handle Email Sign-In
 document.getElementById('emailSignInBtn').addEventListener('click', function() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    var email = prompt("Enter your email:");
+    var password = prompt("Enter your password:");
 
     auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(function(userCredential) {
             console.log("User signed in:", userCredential.user);
-            window.location.href = 'dashboard.html';
+            showDashboard();
         })
-        .catch((error) => {
-            console.error("Error during sign-in:", error.message);
-            alert(error.message);
-        });
-});
-
-// Handle Google Sign-In
-document.getElementById('googleSignInBtn').addEventListener('click', function() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithPopup(provider)
-        .then((result) => {
-            console.log("User signed in with Google:", result.user);
-            window.location.href = 'dashboard.html';
-        })
-        .catch((error) => {
-            console.error("Error during Google Sign-In:", error.message);
-            alert(error.message);
+        .catch(function(error) {
+            console.error("Error during sign-in:", error);
         });
 });
 
 // Handle Sign Out
 document.getElementById('signOutBtn').addEventListener('click', function() {
     auth.signOut()
-        .then(() => {
+        .then(function() {
             console.log("User signed out");
-            window.location.href = 'index.html'; // Redirect to home after sign out
+            document.getElementById('signOutBtn').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'none';
         })
-        .catch((error) => {
-            console.error("Error during sign-out:", error.message);
-            alert(error.message);
+        .catch(function(error) {
+            console.error("Error during sign-out:", error);
         });
 });
 
-// Real-time Auth State Listener (to keep user logged in)
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        console.log("User is logged in:", user);
-        document.getElementById('welcomeMessage').innerHTML = `Welcome, ${user.email || user.displayName}!`;
-    } else {
-        console.log("No user is logged in");
-        document.getElementById('welcomeMessage').innerHTML = "You are not logged in.";
-    }
-});
-
-// Function to add fitness data (calories, sleep, etc.)
-function addFitnessData(type, value) {
-    const user = auth.currentUser;
-
-    if (user) {
-        db.collection('users').doc(user.uid).collection('fitnessData').add({
-            type: type,
-            value: value,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert(`${type} data added successfully!`);
-        }).catch((error) => {
-            console.error("Error adding data:", error);
-            alert(error.message);
-        });
-    } else {
-        alert("Please sign in to add fitness data.");
-    }
+// Show dashboard after login
+function showDashboard() {
+    document.getElementById('signOutBtn').style.display = 'block';
+    document.getElementById('dashboardSection').style.display = 'block';
+    document.getElementById('signInSection').style.display = 'none';
+    document.getElementById('dashboardLink').style.display = 'block';
 }
 
-// Example: Adding fitness data for sleep and calories
-document.getElementById('addSleepDataBtn').addEventListener('click', function() {
-    const sleepHours = document.getElementById('sleepHours').value;
-    addFitnessData('Sleep', sleepHours);
-});
+// Store user fitness data
+document.getElementById('fitnessForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-document.getElementById('addCaloriesDataBtn').addEventListener('click', function() {
+    const user = auth.currentUser;
+    const sleep = document.getElementById('sleep').value;
     const caloriesBurned = document.getElementById('caloriesBurned').value;
-    addFitnessData('Calories', caloriesBurned);
-});
-
-// Load fitness data from Firestore and display graph
-function loadFitnessData() {
-    const user = auth.currentUser;
 
     if (user) {
-        db.collection('users').doc(user.uid).collection('fitnessData')
-            .orderBy('timestamp', 'desc')
-            .get()
-            .then((querySnapshot) => {
-                const fitnessData = [];
-                querySnapshot.forEach((doc) => {
-                    fitnessData.push(doc.data());
-                });
-                displayFitnessGraph(fitnessData);  // Function to display the graph
-            })
-            .catch((error) => {
-                console.error("Error loading fitness data:", error);
-            });
-    } else {
-        alert("Please sign in to view your fitness data.");
+        db.collection('fitnessData').add({
+            uid: user.uid,
+            sleep: sleep,
+            caloriesBurned: caloriesBurned,
+            timestamp: new Date()
+        })
+        .then(function() {
+            console.log("Data saved successfully.");
+            displayChart(user.uid);
+        })
+        .catch(function(error) {
+            console.error("Error storing fitness data:", error);
+        });
     }
+});
+
+// Display a chart for fitness data
+function displayChart(uid) {
+    db.collection('fitnessData').where("uid", "==", uid).orderBy("timestamp", "asc")
+    .get()
+    .then(function(querySnapshot) {
+        const sleepData = [];
+        const caloriesData = [];
+        querySnapshot.forEach(function(doc) {
+            const data = doc.data();
+            sleepData.push(data.sleep);
+            caloriesData.push(data.caloriesBurned);
+        });
+
+        const ctx = document.getElementById('fitnessChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from(Array(sleepData.length).keys()),
+                datasets: [
+                    { label: 'Sleep (hours)', data: sleepData, borderColor: 'blue' },
+                    { label: 'Calories Burned', data: caloriesData, borderColor: 'red' }
+                ]
+            }
+        });
+    })
+    .catch(function(error) {
+        console.error("Error loading chart data:", error);
+    });
 }
 
-// Example function to display fitness data graph (you can use a library like Chart.js)
-function displayFitnessGraph(fitnessData) {
-    // Implement a graph rendering logic here using your favorite charting library
-    console.log(fitnessData); // Placeholder for actual graph implementation
-}
+// Check user authentication state on load
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        console.log("User is signed in:", user);
+        showDashboard();
+    } else {
+        console.log("No user is signed in");
+    }
+});
