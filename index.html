@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Fitness Tracker</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
 </head>
 <body>
     <div id="signInSection">
@@ -28,31 +31,71 @@
     </div>
 
     <script type="module">
-        // Your JavaScript code from the previous message goes here...
+        // Firebase Configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyAax7lvojIX8wp5E65pak4NgCCp7zG_xKc",
+        authDomain: "modern-fitness-tracker.firebaseapp.com",
+        projectId: "modern-fitness-tracker",
+        storageBucket: "modern-fitness-tracker.appspot.com",
+        messagingSenderId: "463905605574",
+        appId: "1:463905605574:web:bd78375a5777c3d4b194c7",
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // DOMContentLoaded Event
         document.addEventListener('DOMContentLoaded', function() {
-            // Add your event listeners here
-            document.getElementById('googleSignInBtn').addEventListener('click', function() {
-                // Google Sign In logic
-            });
-
-            document.getElementById('emailSignInBtn').addEventListener('click', function() {
-                // Email Sign In logic
-            });
-
+            // Event listener for email sign-up
             document.getElementById('emailSignUpBtn').addEventListener('click', function() {
-                // Email Sign Up logic
+                var email = prompt("Enter your email:");
+                var password = prompt("Enter your password:");
+
+                if (email && password) {
+                    // Firebase Email Sign Up
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then(function(userCredential) {
+                            console.log("User signed up:", userCredential.user);
+                            alert("Sign up successful! Welcome, " + userCredential.user.email);
+                            loadDashboard();
+                        })
+                        .catch(function(error) {
+                            console.error("Error during sign-up:", error);
+                            alert("Error: " + error.message);
+                        });
+                } else {
+                    alert("Please enter a valid email and password.");
+                }
             });
 
+            // Add other event listeners for signing in and signing out here...
             document.getElementById('signOutBtn').addEventListener('click', function() {
-                // Sign Out logic
+                auth.signOut().then(function() {
+                    console.log("User signed out.");
+                    document.getElementById('dashboardSection').style.display = 'none';
+                    document.getElementById('signInSection').style.display = 'block';
+                }).catch(function(error) {
+                    console.error("Sign out error:", error);
+                });
             });
 
             // Handle form submission
             document.getElementById('fitnessForm').addEventListener('submit', function(event) {
                 event.preventDefault(); // Prevent form submission
                 // Logic to handle form data
+                const sleepHours = document.getElementById('sleep').value;
+                const caloriesBurned = document.getElementById('caloriesBurned').value;
+                console.log(`Sleep: ${sleepHours}, Calories Burned: ${caloriesBurned}`);
+                // Optionally, you could add this data to a chart or save it to a database
             });
         });
+
+        // Function to load the dashboard
+        function loadDashboard() {
+            document.getElementById('signInSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+        }
     </script>
 </body>
 </html>
