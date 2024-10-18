@@ -1,0 +1,64 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin-right: 15px;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.auth-section {
+    text-align: center;
+    margin-top: 50px;
+}
+
+#dashboardSection {
+    margin: 50px auto;
+    max-width: 600px;
+    text-align: center;
+}
+
+#fitnessForm {
+    margin-bottom: 30px;
+}
+
+#fitnessForm label {
+    display: block;
+    margin-top: 15px;
+}
+
+#chartContainer {
+    max-width: 600px;
+    margin: auto;
+}
+
+canvas {
+    width: 100%;
+}
