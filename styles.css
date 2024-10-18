@@ -1,64 +1,51 @@
-/* Global Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
 body {
+    font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     color: #333;
-    line-height: 1.6;
-}
-
-header {
-    background: #333;
-    color: #fff;
-    padding: 10px;
-    text-align: center;
-}
-
-header nav ul {
-    list-style: none;
+    margin: 0;
     padding: 0;
 }
 
-header nav ul li {
-    display: inline;
-    margin-right: 15px;
+#app {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-header nav ul li a {
-    color: #fff;
-    text-decoration: none;
-}
-
-.auth-section {
+h1 {
     text-align: center;
-    margin-top: 50px;
+    color: #333;
 }
 
-#dashboardSection {
-    margin: 50px auto;
-    max-width: 600px;
-    text-align: center;
+button {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
 }
 
 #fitnessForm {
-    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
 }
 
 #fitnessForm label {
-    display: block;
-    margin-top: 15px;
+    margin: 5px 0;
 }
 
 #chartContainer {
-    max-width: 600px;
-    margin: auto;
-}
-
-canvas {
     width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
 }
