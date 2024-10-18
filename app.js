@@ -109,21 +109,41 @@ function displayChart(uid) {
     .then(function(querySnapshot) {
         const sleepData = [];
         const caloriesData = [];
+        const labels = [];
+
         querySnapshot.forEach(function(doc) {
             const data = doc.data();
             sleepData.push(data.sleep);
             caloriesData.push(data.caloriesBurned);
+            labels.push(new Date(data.timestamp.toDate()).toLocaleDateString()); // Convert timestamp to readable format
         });
 
         const ctx = document.getElementById('fitnessChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from(Array(sleepData.length).keys()),
+                labels: labels,
                 datasets: [
                     { label: 'Sleep (hours)', data: sleepData, borderColor: 'blue', fill: false },
                     { label: 'Calories Burned', data: caloriesData, borderColor: 'red', fill: false }
                 ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
             }
         });
     })
