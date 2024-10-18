@@ -5,10 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <title>Modern Fitness Tracker</title>
-    <script src="https://cdn.jsdelivr.net/npm/firebase/app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase/auth.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase/firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        // Import Firebase modules directly from the CDN
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js';
+        import { Chart } from 'https://cdn.jsdelivr.net/npm/chart.js';
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAax7lvojIX8wp5E65pak4NgCCp7zG_xKc",
+            authDomain: "modern-fitness-tracker.firebaseapp.com",
+            projectId: "modern-fitness-tracker",
+            storageBucket: "modern-fitness-tracker.appspot.com",
+            messagingSenderId: "463905605574",
+            appId: "1:463905605574:web:bd78375a5777c3d4b194c7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Your JavaScript code (app logic)
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('googleSignInBtn').addEventListener('click', () => {
+                const provider = new GoogleAuthProvider();
+                signInWithPopup(auth, provider)
+                    .then((result) => {
+                        console.log("User signed in:", result.user);
+                        showDashboard();
+                    })
+                    .catch((error) => {
+                        console.error("Error during Google Sign-In:", error);
+                        alert(error.message);
+                    });
+            });
+
+            document.getElementById('emailSignUpBtn').addEventListener('click', () => {
+                const email = prompt("Enter your email:");
+                const password = prompt("Enter your password:");
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log("User signed up:", userCredential.user);
+                        showDashboard();
+                    })
+                    .catch((error) => {
+                        console.error("Error during sign-up:", error);
+                        alert(error.message);
+                    });
+            });
+
+            document.getElementById('emailSignInBtn').addEventListener('click', () => {
+                const email = prompt("Enter your email:");
+                const password = prompt("Enter your password:");
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        console.log("User signed in:", userCredential.user);
+                        showDashboard();
+                    })
+                    .catch((error) => {
+                        console.error("Error during sign-in:", error);
+                        alert(error.message);
+                    });
+            });
+
+            document.getElementById('signOutBtn').addEventListener('click', () => {
+                signOut(auth)
+                    .then(() => {
+                        console.log("User signed out");
+                        document.getElementById('signOutBtn').style.display = 'none';
+                        document.getElementById('dashboardSection').style.display = 'none';
+                        document.getElementById('signInSection').style.display = 'block';
+                    })
+                    .catch((error) => {
+                        console.error("Error during sign-out:", error);
+                        alert(error.message);
+                    });
+            });
+
+            function showDashboard() {
+                document.getElementById('signOutBtn').style.display = 'block';
+                document.getElementById('dashboardSection').style.display = 'block';
+                document.getElementById('signInSection').style.display = 'none';
+            }
+
+            document.getElementById('fitnessForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const user = auth.currentUser;
+                const sleep = document.getElementById('sleep').value;
+                const caloriesBurned = document.getElementById('caloriesBurned').value;
+
+                if (user) {
+                    addDoc(collection(db, 'fitnessData'), {
+                        uid: user.uid,
+                        sleep: parseFloat(sleep),
+                        caloriesBurned: parseFloat(caloriesBurned),
+                        timestamp: new Date()
+                    })
+                    .then(() => {
+                        console.log("Data saved successfully.");
+                        displayChart(user.uid);
+                        document.getElementById('fitnessForm').reset(); // Reset the form
+                    })
+                    .catch((error) => {
+                        console.error("Error storing fitness data:", error);
+                        alert(error.message);
+                    });
+                } else {
+                    alert("You must be signed in to submit data.");
+                }
+            });
+
+            function displayChart(uid) {
+                const fitnessRef = collection(db, 'fitnessData');
+                const q = query(fitnessRef, where("uid", "==", uid), orderBy("timestamp"));
+                getDocs(q)
+                    .then((querySnapshot) => {
+                        const sleepData = [];
+                        const caloriesData = [];
+                        const labels = [];
+
+                        querySnapshot.forEach((doc) => {
+                            const data = doc.data();
+                            sleepData.push(data.sleep);
+                            caloriesData.push(data.caloriesBurned);
+                            labels.push(new Date(data.timestamp).toLocaleDateString());
+                        });
+
+                        const ctx = document.getElementById('fitnessChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    { label: 'Sleep (hours)', data: sleepData, borderColor: 'blue', fill: false },
+                                    { label: 'Calories Burned', data: caloriesData, borderColor: 'red', fill: false }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Amount'
+                                        }
+                                    },
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Date'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error loading chart data:", error);
+                        alert(error.message);
+                    });
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log("User is signed in:", user);
+                    showDashboard();
+                    displayChart(user.uid); // Display chart immediately after sign in
+                } else {
+                    console.log("No user is signed in");
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <div id="app">
@@ -32,7 +202,5 @@
             </div>
         </div>
     </div>
-
-    <script type="module" src="app.js"></script>
 </body>
 </html>
