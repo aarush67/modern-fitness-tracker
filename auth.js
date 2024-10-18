@@ -21,12 +21,17 @@ document.getElementById('signup-btn').addEventListener('click', function() {
         .catch(error => alert(error.message));
 });
 
-// Google Sign-In
-document.getElementById('google-signin').addEventListener('click', function() {
+// Sign Up with Google
+document.getElementById('google-signup').addEventListener('click', function() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-        .then(() => {
+        .then(result => {
+            // User successfully signed in
+            console.log('Google sign-up successful', result.user);
             window.location.href = 'dashboard.html';
         })
-        .catch(error => alert(error.message));
+        .catch(error => {
+            console.error('Error during Google sign-up:', error);
+            alert(error.message);
+        });
 });
