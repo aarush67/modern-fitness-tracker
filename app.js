@@ -105,6 +105,8 @@ document.getElementById('fitnessForm').addEventListener('submit', function(e) {
             console.error("Error storing fitness data:", error);
             alert(error.message);
         });
+    } else {
+        alert("You must be signed in to submit data.");
     }
 });
 
