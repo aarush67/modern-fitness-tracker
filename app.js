@@ -121,8 +121,8 @@ function displayChart(uid) {
             data: {
                 labels: Array.from(Array(sleepData.length).keys()),
                 datasets: [
-                    { label: 'Sleep (hours)', data: sleepData, borderColor: 'blue' },
-                    { label: 'Calories Burned', data: caloriesData, borderColor: 'red' }
+                    { label: 'Sleep (hours)', data: sleepData, borderColor: 'blue', fill: false },
+                    { label: 'Calories Burned', data: caloriesData, borderColor: 'red', fill: false }
                 ]
             }
         });
