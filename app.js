@@ -74,7 +74,6 @@ function showDashboard() {
     document.getElementById('signOutBtn').style.display = 'block';
     document.getElementById('dashboardSection').style.display = 'block';
     document.getElementById('signInSection').style.display = 'none';
-    document.getElementById('dashboardLink').style.display = 'block';
 }
 
 // Store user fitness data
@@ -115,7 +114,7 @@ function displayChart(uid) {
             const data = doc.data();
             sleepData.push(data.sleep);
             caloriesData.push(data.caloriesBurned);
-            labels.push(new Date(data.timestamp.toDate()).toLocaleDateString()); // Convert timestamp to readable format
+            labels.push(new Date(data.timestamp.toDate()).toLocaleDateString());
         });
 
         const ctx = document.getElementById('fitnessChart').getContext('2d');
