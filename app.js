@@ -1,5 +1,5 @@
 // Firebase configuration
-var firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyAax7lvojIX8wp5E65pak4NgCCp7zG_xKc",
     authDomain: "modern-fitness-tracker.firebaseapp.com",
     projectId: "modern-fitness-tracker",
@@ -10,12 +10,12 @@ var firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-var auth = firebase.auth();
-var db = firebase.firestore();
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Handle Google Sign-In
 document.getElementById('googleSignInBtn').addEventListener('click', function() {
-    var provider = new firebase.auth.GoogleAuthProvider();
+    const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
         .then(function(result) {
             console.log("User signed in:", result.user);
@@ -29,8 +29,8 @@ document.getElementById('googleSignInBtn').addEventListener('click', function() 
 
 // Handle Email Sign-Up
 document.getElementById('emailSignUpBtn').addEventListener('click', function() {
-    var email = prompt("Enter your email:");
-    var password = prompt("Enter your password:");
+    const email = prompt("Enter your email:");
+    const password = prompt("Enter your password:");
 
     auth.createUserWithEmailAndPassword(email, password)
         .then(function(userCredential) {
@@ -45,8 +45,8 @@ document.getElementById('emailSignUpBtn').addEventListener('click', function() {
 
 // Handle Email Sign-In
 document.getElementById('emailSignInBtn').addEventListener('click', function() {
-    var email = prompt("Enter your email:");
-    var password = prompt("Enter your password:");
+    const email = prompt("Enter your email:");
+    const password = prompt("Enter your password:");
 
     auth.signInWithEmailAndPassword(email, password)
         .then(function(userCredential) {
